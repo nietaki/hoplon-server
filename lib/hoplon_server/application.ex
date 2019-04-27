@@ -15,8 +15,8 @@ defmodule HoplonServer.Application do
 
     children = [
       HoplonServer.Repo,
-      {HoplonServer.API, [config, cleartext_options]},
-      {HoplonServer.API, [config, secure_options]}
+      # {HoplonServer.API, [config, secure_options]},
+      {HoplonServer.API, [config, cleartext_options]}
     ]
 
     opts = [strategy: :one_for_one, name: HoplonServer.Supervisor]
