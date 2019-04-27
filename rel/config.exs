@@ -32,6 +32,14 @@ environment :dev do
   set dev_mode: true
   set include_erts: false
   set cookie: :"yXhz{%R_?RQ3WV<5Z;)Qc5uN[1}Ge%1!}:u:/TIH`Rc7j:EikC*sQ5^pn.Ktl2%}"
+
+  # copied from the docs https://hexdocs.pm/distillery/config/runtime.html
+  set config_providers: [
+    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "rel/config/config.exs", "etc/config.exs"}
+  ]
 end
 
 environment :prod do
@@ -39,6 +47,14 @@ environment :prod do
   set include_src: false
   set cookie: :"*WN0GZcGl3QErvr;CRnRO2EEeUj][`9I*x}EjVQ((Gah&JhZFr`&D<^aUnf<{G%U"
   set vm_args: "rel/vm.args"
+
+  # copied from the docs https://hexdocs.pm/distillery/config/runtime.html
+  set config_providers: [
+    {Mix.Releases.Config.Providers.Elixir, ["${RELEASE_ROOT_DIR}/etc/config.exs"]}
+  ]
+  set overlays: [
+    {:copy, "rel/config/config.exs", "etc/config.exs"}
+  ]
 end
 
 # You may define one or more releases in this file.
