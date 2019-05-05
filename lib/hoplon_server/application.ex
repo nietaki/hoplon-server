@@ -7,7 +7,7 @@ defmodule HoplonServer.Application do
     config = %{}
     cleartext_options = [port: port(), cleartext: true]
 
-    secure_options = [
+    _secure_options = [
       port: secure_port(),
       certfile: certificate_path(),
       keyfile: certificate_key_path()

@@ -28,7 +28,8 @@ defmodule HoplonServer.Mixfile do
       {:jason, "~> 1.0"},
       {:postgrex, ">= 0.0.0"},
       {:ecto_sql, "~> 3.0.0"},
-      {:distillery, "~> 2.0"}
+      {:distillery, "~> 2.0"},
+      {:hoplon, github: "nietaki/hoplon"}
     ]
   end
 
