@@ -47,7 +47,7 @@ defmodule HoplonServer.API.Actions.UploadAudit do
   defp decode_audit(audit_hex) do
     case Hoplon.Crypto.hex_decode(audit_hex) do
       {:ok, binary} ->
-        case Hoplon.Data.Encoder.decode(binary, :audit) do
+        case Hoplon.Data.Encoder.decode(binary, :Audit) do
           {:ok, audit} ->
             {:ok, audit}
 

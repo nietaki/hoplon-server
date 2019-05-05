@@ -14,5 +14,3 @@ config :hoplon_server, HoplonServer.Repo,
 if Mix.env() == :test do
   config :hoplon_server, HoplonServer.Repo, pool: Ecto.Adapters.SQL.Sandbox
 end
-
-
