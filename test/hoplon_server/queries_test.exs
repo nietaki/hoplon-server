@@ -57,6 +57,8 @@ defmodule HoplonServer.QueriesTest do
     assert {:ok, key} == Queries.ensure_public_key("foo", "bar")
 
     assert {:error, {:already_exists, key}} == Queries.ensure_public_key("foo", "baz")
+
+    assert {:error, :already_exists_with_same_fingerprint} == Queries.insert_key(key)
   end
 
   defp sample_package() do

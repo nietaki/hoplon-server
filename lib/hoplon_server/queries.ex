@@ -24,7 +24,16 @@ defmodule HoplonServer.Queries do
       nil ->
         # insert
         row = PublicKeySchema.new(fingerprint, pem)
-        Repo.insert(row)
+
+        case insert_key(row) do
+          {:error, :already_exists_with_same_fingerprint} ->
+            # a key got inserted in the meantime, it's safe to retry,
+            # we won't hit the same branch of code
+            ensure_public_key(fingerprint, pem)
+
+          {:ok, _key} = success ->
+            success
+        end
 
       key = %{pem: ^pem} ->
         {:ok, key}
@@ -36,5 +45,21 @@ defmodule HoplonServer.Queries do
 
   def get_public_key(fingerprint) do
     Repo.get(PublicKeySchema, fingerprint)
+  end
+
+  def insert_key(%PublicKeySchema{} = key) do
+    result =
+      key
+      |> Ecto.Changeset.cast(%{}, [])
+      |> Ecto.Changeset.unique_constraint(:public_keys_pkey, name: :public_keys_pkey)
+      |> Repo.insert()
+
+    case result do
+      {:ok, _key} ->
+        result
+
+      {:error, %Ecto.Changeset{errors: [{:public_keys_pkey, _}]}} ->
+        {:error, :already_exists_with_same_fingerprint}
+    end
   end
 end
