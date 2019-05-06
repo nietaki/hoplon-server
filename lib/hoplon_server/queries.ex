@@ -85,4 +85,13 @@ defmodule HoplonServer.Queries do
 
     Repo.all(query)
   end
+
+  def get_latest_audits(ecosystem, package_name, package_hash, fingerprints) do
+    get_audits(ecosystem, package_name, package_hash, fingerprints)
+    |> Enum.group_by(& &1.fingerprint)
+    |> Enum.map(fn
+      {_fingerprint, audits} ->
+        Enum.max_by(audits, & &1.audit_created_at)
+    end)
+  end
 end

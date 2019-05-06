@@ -15,7 +15,7 @@ defmodule HoplonServer.API.Actions.FetchAudits do
       ) do
     with {:ok, body} <- decode_request_body(request.body),
          fingerprints = body["fingerprints"] do
-      audits = Queries.get_audits(ecosystem, package_name, package_hash, fingerprints)
+      audits = Queries.get_latest_audits(ecosystem, package_name, package_hash, fingerprints)
 
       audits_json =
         audits
