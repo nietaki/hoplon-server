@@ -13,9 +13,10 @@ defmodule HoplonServer.API.Router do
   end
 
   # api section
-  # TODO middleware for parsing requests
   section([], [
-    {%{path: ["audits", "upload"], method: :POST}, Actions.UploadAudit}
+    {%{path: ["audits", "upload"], method: :POST}, Actions.UploadAudit},
+    {%{path: ["audits", "fetch", _ecosystem, _package_name, _package_hash], method: :POST},
+     Actions.FetchAudits}
   ])
 
   # Call GreetUser and in WWW dir AND call into lib

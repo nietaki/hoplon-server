@@ -72,4 +72,17 @@ defmodule HoplonServer.Queries do
         {:error, :already_exists_with_same_fingerprint}
     end
   end
+
+  def get_audits(ecosystem, package_name, package_hash, fingerprints)
+      when is_list(fingerprints) do
+    query =
+      from(a in AuditSchema,
+        where: a.ecosystem == ^ecosystem,
+        where: a.package_name == ^package_name,
+        where: a.package_hash == ^package_hash,
+        where: a.fingerprint in ^fingerprints
+      )
+
+    Repo.all(query)
+  end
 end

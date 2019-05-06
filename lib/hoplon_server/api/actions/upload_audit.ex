@@ -21,8 +21,6 @@ defmodule HoplonServer.API.Actions.UploadAudit do
          audit_fingerprint = Data.audit(audit, :publicKeyFingerprint),
          {:ok, fingerprint} <- validate_fingerprints_match(key_fingerprint, audit_fingerprint),
          {:ok, _key_schema} <- Queries.ensure_public_key(fingerprint, pem) do
-      # TODO handle idempotent uploads (don't forget to add an index)
-
       if Queries.audit_exists?(audit_binary) do
         response(:ok)
         |> API.set_json_payload(%{message: "audit has been uploaded before"})
@@ -74,11 +72,6 @@ defmodule HoplonServer.API.Actions.UploadAudit do
         {:ok, params}
 
       {:ok, _} ->
-        error = %{title: "Missing required data parameter 'name'"}
-
-        response(:bad_request)
-        |> API.set_json_payload(%{errors: [error]})
-
         message = "missing required param"
         {:error, message}
 
