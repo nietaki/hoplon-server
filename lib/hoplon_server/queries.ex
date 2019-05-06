@@ -43,6 +43,16 @@ defmodule HoplonServer.Queries do
     end
   end
 
+  def audit_exists?(audit_binary) when is_binary(audit_binary) do
+    query =
+      from(a in AuditSchema,
+        where: a.audit_binary == ^audit_binary,
+        limit: 1
+      )
+
+    Repo.exists?(query)
+  end
+
   def get_public_key(fingerprint) do
     Repo.get(PublicKeySchema, fingerprint)
   end

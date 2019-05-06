@@ -22,17 +22,23 @@ defmodule HoplonServer.API.Actions.UploadAudit do
          {:ok, fingerprint} <- validate_fingerprints_match(key_fingerprint, audit_fingerprint),
          {:ok, _key_schema} <- Queries.ensure_public_key(fingerprint, pem) do
       # TODO handle idempotent uploads (don't forget to add an index)
-      audit_struct = AuditSchema.new(audit, audit_binary, signature_binary)
-      Repo.insert!(audit_struct)
 
-      body =
-        audit_struct
-        |> Map.from_struct()
-        |> Map.drop([:__meta__])
-        |> Map.drop([:audit_binary, :signature])
+      if Queries.audit_exists?(audit_binary) do
+        response(:ok)
+        |> API.set_json_payload(%{message: "audit has been uploaded before"})
+      else
+        audit_struct = AuditSchema.new(audit, audit_binary, signature_binary)
+        Repo.insert!(audit_struct)
 
-      response(:ok)
-      |> API.set_json_payload(body)
+        body =
+          audit_struct
+          |> Map.from_struct()
+          |> Map.drop([:__meta__])
+          |> Map.drop([:audit_binary, :signature])
+
+        response(:ok)
+        |> API.set_json_payload(body)
+      end
     else
       {:error, message} when is_binary(message) ->
         response(:bad_request)
