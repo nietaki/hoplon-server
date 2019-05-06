@@ -26,6 +26,7 @@ defmodule HoplonServer.API.Actions.UploadAudit do
         audit_struct
         |> Map.from_struct()
         |> Map.drop([:__meta__])
+        |> Map.drop([:audit_binary, :signature])
 
       response(:ok)
       |> API.set_json_payload(body)
