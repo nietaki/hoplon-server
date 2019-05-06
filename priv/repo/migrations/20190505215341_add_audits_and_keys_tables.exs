@@ -24,10 +24,12 @@ defmodule HoplonServer.Repo.Migrations.AddAuditsAndKeysTables do
       timestamps(updated_at: false)
     end
 
-    create(index(:audits, [:ecosystem, :package_name, :package_hash]))
-    create(index(:audits, [:ecosystem, :package_name, :package_version]))
+    # unique index to make sure there's nothing fishy going on with people spamming
+    # audits all created at the same time
+    create(index(:audits, [:ecosystem, :package_name, :package_hash, :fingerprint, :audit_created_at], unique: true))
 
-    create(index(:audits, [:fingerprint, :ecosystem, :package_name]))
+    create(index(:audits, [:fingerprint, :ecosystem]))
+    create(index(:audits, [:ecosystem, :package_name, :package_version]))
 
     create table(:public_keys, primary_key: false) do
       add(:fingerprint, :text, null: false, primary_key: true)
