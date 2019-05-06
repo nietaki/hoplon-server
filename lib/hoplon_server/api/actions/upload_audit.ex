@@ -18,13 +18,17 @@ defmodule HoplonServer.API.Actions.UploadAudit do
          key_fingerprint = Hoplon.Crypto.get_fingerprint(public_key),
          audit_fingerprint = Data.audit(audit, :publicKeyFingerprint),
          {:ok, fingerprint} <- validate_fingerprints_match(key_fingerprint, audit_fingerprint),
-         {:ok, _key_schema} <- Queries.ensure_public_key(fingerprint, pem)
-    do
+         {:ok, _key_schema} <- Queries.ensure_public_key(fingerprint, pem) do
       audit_struct = AuditSchema.new(audit, audit_binary, signature_binary)
       Repo.insert!(audit_struct)
 
+      body =
+        audit_struct
+        |> Map.from_struct()
+        |> Map.drop([:__meta__])
+
       response(:ok)
-      |> API.set_json_payload(Map.from_struct(audit_struct))
+      |> API.set_json_payload(body)
     else
       {:error, message} when is_binary(message) ->
         response(:bad_request)
@@ -32,7 +36,10 @@ defmodule HoplonServer.API.Actions.UploadAudit do
 
       {:error, {:already_exists, %{pem: pem}}} ->
         response(:bad_request)
-        |> API.set_json_payload(%{error: "another public key with the same fingerprint was already used", pem: pem})
+        |> API.set_json_payload(%{
+          error: "another public key with the same fingerprint was already used",
+          pem: pem
+        })
 
       {:error, error = %Hoplon.Error{}} ->
         response(:bad_request)
@@ -45,7 +52,10 @@ defmodule HoplonServer.API.Actions.UploadAudit do
   end
 
   defp validate_fingerprints_match(key_fingerprint, audit_fingerprint) do
-    {:error, "key fingerprint (#{key_fingerprint}) does not match the audit fingerprint (#{audit_fingerprint})"}
+    {:error,
+     "key fingerprint (#{key_fingerprint}) does not match the audit fingerprint (#{
+       audit_fingerprint
+     })"}
   end
 
   defp decode_request_body(body) do
