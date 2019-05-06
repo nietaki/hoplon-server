@@ -5,6 +5,7 @@ defmodule HoplonServer.API.Actions.UploadAudit do
   alias HoplonServer.Queries
   require Hoplon.Data
   alias Hoplon.Data
+  alias Hoplon.Crypto
   alias HoplonServer.Repo
   alias HoplonServer.Schema.Audit, as: AuditSchema
 
@@ -13,12 +14,14 @@ defmodule HoplonServer.API.Actions.UploadAudit do
     with {:ok, params} <- decode_request_body(request.body),
          pem = params["public_key_pem"],
          {:ok, audit_binary, audit} <- decode_audit(params["audit_hex"]),
-         {:ok, signature_binary} <- Hoplon.Crypto.hex_decode(params["signature_hex"]),
-         {:ok, public_key} <- Hoplon.Crypto.decode_public_key_from_pem(pem),
-         key_fingerprint = Hoplon.Crypto.get_fingerprint(public_key),
+         {:ok, signature_binary} <- Crypto.hex_decode(params["signature_hex"]),
+         {:ok, public_key} <- Crypto.decode_public_key_from_pem(pem),
+         true = Crypto.verify_signature(audit_binary, signature_binary, public_key),
+         key_fingerprint = Crypto.get_fingerprint(public_key),
          audit_fingerprint = Data.audit(audit, :publicKeyFingerprint),
          {:ok, fingerprint} <- validate_fingerprints_match(key_fingerprint, audit_fingerprint),
          {:ok, _key_schema} <- Queries.ensure_public_key(fingerprint, pem) do
+      # TODO handle idempotent uploads (don't forget to add an index)
       audit_struct = AuditSchema.new(audit, audit_binary, signature_binary)
       Repo.insert!(audit_struct)
 
@@ -79,7 +82,7 @@ defmodule HoplonServer.API.Actions.UploadAudit do
   end
 
   defp decode_audit(audit_hex) do
-    case Hoplon.Crypto.hex_decode(audit_hex) do
+    case Crypto.hex_decode(audit_hex) do
       {:ok, binary} ->
         case Hoplon.Data.Encoder.decode(binary, :Audit) do
           {:ok, audit} ->
