@@ -16,7 +16,8 @@ defmodule HoplonServer.API.Router do
   section([], [
     {%{path: ["audits", "upload"], method: :POST}, Actions.UploadAudit},
     {%{path: ["audits", "fetch", _ecosystem, _package_name, _package_hash], method: :POST},
-     Actions.FetchAudits}
+     Actions.FetchAudits},
+    {%{path: ["keys", "fetch", _fingerprint]}, Actions.FetchKey}
   ])
 
   # Call GreetUser and in WWW dir AND call into lib
