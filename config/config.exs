@@ -12,7 +12,7 @@ config :hoplon_server, HoplonServer.Repo,
   log: :debug,
   # log: false,
   ssl_opts: [
-    cacertfile: "priv/repo/rds-ca-2015-root.pem"
+    cacertfile: "priv/repo/rds-ca-2019-root.pem"
   ]
 
 if Mix.env() == :test do
